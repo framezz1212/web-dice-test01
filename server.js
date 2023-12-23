@@ -9,4 +9,4 @@ const server = http.createServer((req, res) => {
     }));
   } else {
     res.sendStatus(404);
-}
+}})
