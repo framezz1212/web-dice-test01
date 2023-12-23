@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Web Dice</title>
+</head>
+<body>
+  <h1>Web Dice</h1>
+  <div id="dice">
+    <div id="face1">pat</div>
+    <div id="face2">jao</div>
+    <div id="face3">mo</div>
+    <div id="face4">jame</div>
+    <div id="face5">cd</div>
+    <div id="face6">tae</div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // ฟังก์ชันโยนลูกเต๋า
+      function rollDice() {
+        // สุ่มตัวเลข 1-6
+        var number = Math.floor(Math.random() * 6) + 1;
+
+        // เปลี่ยนข้อความบนหน้าลูกเต๋า
+        for (var i = 1; i <= 6; i++) {
+          if (i == number) {
+            $("#face" + i).text("ตัวเลข " + number);
+          } else {
+            $("#face" + i).text("");
+          }
+        }
+
+        // แสดง Animation ลูกเต๋า
+        $("#face" + number).addClass("active");
+        setTimeout(function() {
+          $("#face" + number).removeClass("active");
+        }, 1000);
+      }
+
+      // ฟังก์ชันเชื่อมต่อกับเซิร์ฟเวอร์
+      var socket = new WebSocket("ws://localhost:8080");
+
+      // ฟังก์ชันรับข้อความจากเซิร์ฟเวอร์
+      socket.onmessage = function(event) {
+        var data = JSON.parse(event.data);
+
+        // เปลี่ยนข้อความบนหน้าลูกเต๋า
+        for (var i = 1; i <= 6; i++) {
+          if (i == data.number) {
+            $("#face" + i).text("ตัวเลข " + data.number);
+          } else {
+            $("#face" + i).text("");
+          }
+        }
+
+        // แสดง Animation ลูกเต๋า
+        $("#face" + data.number).addClass("active");
+        setTimeout(function() {
+          $("#face" + data.number).removeClass("active");
+        }, 1000);
+      };
+
+      // ฟังก์ชันกดปุ่มโยนลูกเต๋า
+      $("button#roll").click(function() {
+        // ส่งข้อความไปยังเซิร์ฟเวอร์
+        socket.send(JSON.stringify({
+          action: "roll"
+        }));
+      });
+    });
+  </script>
+</body>
+</html>
